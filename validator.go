@@ -20,7 +20,7 @@ func Validate(v any) error {
 			if !field.IsExported() && field.Tag.Get("validate") != "" {
 				errorsGroup = append(errorsGroup, ValidationError{ErrValidateForUnexportedFields})
 				continue
-			} else if !field.IsExported() && field.Tag.Get("validate") == "" {
+			} else if field.Tag.Get("validate") == "" {
 				continue
 			}
 
