@@ -12,7 +12,7 @@ func Validate(v any) error {
 	switch typeV {
 	case reflect.Struct:
 		errorsGroup := make(ValidationErrors, 0)
-
+	TODO:
 		for i := 0; i < reflect.TypeOf(v).NumField(); i++ {
 			field := reflect.TypeOf(v).Field(i)
 			value := reflect.ValueOf(v).Field(i)
@@ -24,21 +24,22 @@ func Validate(v any) error {
 				continue
 			}
 
-			val := strings.Split(field.Tag.Get("validate"), ":")
-			if len(val) != 2 {
-				errorsGroup = append(errorsGroup, ValidationError{fmt.Errorf("error with field %s", field.Name)})
-				continue
+			tagsValue := strings.Split(field.Tag.Get("validate"), ";")
+			for _, val := range tagsValue {
+				tagPair := strings.Split(strings.TrimSpace(val), ":")
+				if len(tagPair) != 2 {
+					errorsGroup = append(errorsGroup, ValidationError{fmt.Errorf("error with field %s", field.Name)})
+					continue TODO
+				}
+				if err := ValidTag(tagPair[0], tagPair[1]); err != nil {
+					errorsGroup = append(errorsGroup, ValidationError{err})
+					continue TODO
+				}
+				// тип поля значение поля тег поля значение тега
+				if err := ValidValue(field, value, tagPair[0], tagPair[1]); err != nil {
+					errorsGroup = append(errorsGroup, ValidationError{err})
+				}
 			}
-
-			if err := ValidTag(val[0], val[1]); err != nil {
-				errorsGroup = append(errorsGroup, ValidationError{err})
-				continue
-			}
-			// тип поля значение поля тег поля значение тега
-			if err := ValidValue(field, value, val[0], val[1]); err != nil {
-				errorsGroup = append(errorsGroup, ValidationError{err})
-			}
-
 		}
 		if len(errorsGroup) > 0 {
 			return errorsGroup

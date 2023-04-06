@@ -396,6 +396,36 @@ func TestValidate(t *testing.T) {
 				return true
 			},
 		},
+		{
+			name: "wrong some required",
+			args: args{
+				v: struct {
+					MaxStr      string   `validate:"max:20;min:0"`
+					MaxSliceStr []string `validate:"max:15"`
+				}{
+					MaxStr:      "abcdefghjklmopqrst",
+					MaxSliceStr: []string{"awd", "", "apdmpaodm", "awdftghujkolawd"},
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name: "valid struct with tagged fields some required",
+			args: args{
+				v: struct {
+					MaxStr      string   `validate:"max:20;min:3"`
+					MaxSliceStr []string `validate:"max:15;min:3"`
+				}{
+					MaxStr:      "abcdefghjklmopqrst",
+					MaxSliceStr: []string{"awd", "", "apdmpaodm", "awdftghujkolawd"},
+				},
+			},
+			wantErr: true,
+			checkErr: func(err error) bool {
+				assert.Len(t, err.(ValidationErrors), 1)
+				return true
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
